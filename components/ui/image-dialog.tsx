@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { X } from 'lucide-react';
 
 type ImageDialogProps = {
@@ -56,10 +57,13 @@ export function ImageDialog({ isOpen, onClose, imageSrc, imageAlt }: ImageDialog
           <X className="h-5 w-5" />
         </button>
         
-        <img
+        <Image
           src={imageSrc}
           alt={imageAlt}
+          width={1920}
+          height={1080}
           className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+          priority
         />
       </div>
     </div>

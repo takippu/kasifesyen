@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
-import { GoogleAIFileManager } from '@google/generative-ai/server';
-import * as fs from 'node:fs';
-import mime from 'mime-types';
 
 // Initialize the Google Generative AI with your API key
 // The API key will be provided by the user
@@ -124,7 +121,6 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    let result;
 
     // Process based on whether we have an image or text prompt
     if (imageFile) {
@@ -177,7 +173,7 @@ export async function POST(request: NextRequest) {
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              responseModalities: ["image", "text"],
+              // responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
             }
           });
@@ -185,11 +181,11 @@ export async function POST(request: NextRequest) {
           // Create a chat session for image generation
           const chatSession = imageModel.startChat({
             generationConfig: {
-              temperature: 1,
+              temperature: 1, 
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              responseModalities: ["image", "text"],
+              // responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
             },
             history: []
@@ -310,7 +306,7 @@ export async function POST(request: NextRequest) {
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              responseModalities: ["image", "text"],
+              // responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
             }
           });
@@ -322,7 +318,7 @@ export async function POST(request: NextRequest) {
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              responseModalities: ["image", "text"],
+              // responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
             },
             history: []
@@ -386,7 +382,7 @@ export async function POST(request: NextRequest) {
         console.error('Failed to parse JSON response:', e);
         console.log('Returning raw response instead');
         // If the response is not valid JSON, return it as text
-        return NextResponse.json({ rawResponse: text });
+        return NextResponse.json({ rawResponse: Text });
       }
     }
 

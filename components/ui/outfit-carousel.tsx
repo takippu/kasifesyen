@@ -1,12 +1,21 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from 'react';
+import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ImageDialog } from './image-dialog';
 
+export interface Outfit {
+  name: string;
+  generatedImage?: string;
+  pieces?: string[];
+  occasions?: string[];
+  reasoning?: string;
+}
+
 type OutfitCarouselProps = {
-  outfits: any[];
+  outfits: Outfit[];
 };
 
 export function OutfitCarousel({ outfits }: OutfitCarouselProps) {
@@ -66,15 +75,16 @@ export function OutfitCarousel({ outfits }: OutfitCarouselProps) {
                         className="relative w-full md:w-48 h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700 cursor-pointer transition-transform hover:scale-[1.02]"
                         onClick={() => {
                           setSelectedImage({
-                            src: outfit.generatedImage,
+                            src: outfit.generatedImage as string,
                             alt: `${outfit.name} outfit`
                           });
                           setDialogOpen(true);
                         }}
                       >
-                        <img 
+                        <Image 
                           src={outfit.generatedImage} 
                           alt={`${outfit.name} outfit`}
+                          fill
                           className="object-cover w-full h-full"
                         />
                       </div>

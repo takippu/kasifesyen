@@ -9,13 +9,32 @@ import { VideoDialog } from "@/components/ui/video-dialog";
 import { RefreshCw, PlayCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface ItemDescription {
+  [key: string]: string;
+}
+
+interface Outfit {
+  name: string;
+  pieces?: string[];
+  occasions?: string[];
+  reasoning?: string;
+  generatedImage?: string;
+}
+
+interface FashionResult {
+  itemType: string;
+  itemDescription?: ItemDescription;
+  outfits?: Outfit[];
+  stylingTips?: string[];
+  generatedImage?: string;
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [textPrompt, setTextPrompt] = useState("");
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<FashionResult | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -24,6 +43,7 @@ export default function Home() {
   const [halalMode, setHalalMode] = useState(false);
   const [halalInfoOpen, setHalalInfoOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -102,13 +122,15 @@ export default function Home() {
         setLoadingStage("Formatting AI fashion advice...");
         try {
           const sanitized = data.rawResponse.replace(/```json/g, '').replace(/```/g, '');
-          const parsedData = JSON.parse(sanitized);
+          const parsedData = JSON.parse(sanitized) as FashionResult;
           setResult({
             ...parsedData,
             generatedImage: parsedData.generatedImage?.trimEnd()
           });
-        } catch (parseError) {
+        } catch (error) {
           clearInterval(loadingTimer);
+          setError(error instanceof Error ? error.message : "An unknown error occurred");
+
           throw new Error('Failed to parse fashion recommendations');
         }
       } else {
@@ -180,8 +202,8 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Outfit Suggestions */}
-            {result.outfits?.length > 0 && (
+           {/* Outfit Suggestions */}
+            {Array.isArray(result.outfits) && result.outfits.length > 0 && (
               <section>
                 <h3 className="text-xl font-semibold mb-4 text-pink-700 dark:text-pink-300">
                   Outfit Suggestions
@@ -191,13 +213,13 @@ export default function Home() {
             )}
 
             {/* Styling Tips */}
-            {result.stylingTips?.length > 0 && (
+            {Array.isArray(result.stylingTips) && result.stylingTips.length > 0 && (
               <section>
                 <h3 className="text-xl font-semibold mb-3 text-pink-700 dark:text-pink-300">
                   Styling Tips
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                  {result.stylingTips.map((tip: string, index: number) => (
+                  {result.stylingTips.map((tip, index) => (
                     <li key={index}>{tip}</li>
                   ))}
                 </ul>
@@ -218,16 +240,17 @@ export default function Home() {
               className="relative rounded-xl shadow-lg border-2 border-pink-200 dark:border-purple-700 w-full max-w-sm h-96 cursor-pointer transition-transform hover:scale-[1.02]"
               onClick={() => {
                 setSelectedImage({
-                  src: result.generatedImage,
+                  src: result.generatedImage!,
                   alt: "Generated outfit"
                 });
                 setDialogOpen(true);
               }}
             >
-              <img 
+              <Image 
                 src={result.generatedImage}
                 alt="Generated outfit"
-                className="w-full h-full object-cover rounded-lg"
+                fill
+                className="object-cover rounded-lg"
               />
             </div>
           </div>
@@ -469,7 +492,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Halal Mode Information</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Please note that while Halal Mode attempts to provide modest fashion recommendations according to Islamic guidelines, the results may not fully adhere to these guidelines due to limitations in the AI's understanding and implementation.
+                    Please note that while Halal Mode attempts to provide modest fashion recommendations according to Islamic guidelines, the results may not fully adhere to these guidelines due to limitations in the AI&apos; s understanding and implementation.
                   </p>
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
                     We recommend using your own judgment when evaluating the modesty of the suggested outfits.
