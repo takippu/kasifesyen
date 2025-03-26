@@ -38,26 +38,48 @@ export default function Home() {
     setResult(null);
     setError(null);
     setIsLoading(true);
-    setLoadingStage("Analyzing your request...");
+    setLoadingStage("Preparing your request...");
 
     try {
       if (!file && !textPrompt) {
         throw new Error("Please upload an image or provide a text description");
       }
 
+      // Create a timeout to update loading messages periodically
+      let loadingMessageIndex = 0;
+      const loadingMessages = [
+        "Preparing your request...",
+        "Converting image for processing...",
+        "Analyzing fashion elements...",
+        "Identifying clothing style and features...",
+        "Creating outfit combinations...",
+        "Generating styling recommendations...",
+        "Creating outfit visualizations...",
+        "Finalizing your fashion suggestions..."
+      ];
+      
+      // Set up a timer to cycle through loading messages
+      const loadingTimer = setInterval(() => {
+        loadingMessageIndex = (loadingMessageIndex + 1) % loadingMessages.length;
+        setLoadingStage(loadingMessages[loadingMessageIndex]);
+      }, 3000);
+
       const formData = new FormData();
-      if (file) formData.append("image", file);
+      if (file) {
+        formData.append("image", file);
+      }
       if (textPrompt) formData.append("prompt", textPrompt);
       formData.append("gender", gender);
       formData.append("halalMode", String(halalMode));
 
-      setLoadingStage("Sending request to server...");
+      setLoadingStage("Sending request to AI fashion expert...");
       const response = await fetch("/api/fashion", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
+        clearInterval(loadingTimer);
         throw new Error(`Error: ${response.status}`);
       }
 
@@ -65,6 +87,7 @@ export default function Home() {
       const data = await response.json();
 
       if (data.rawResponse) {
+        setLoadingStage("Formatting AI fashion advice...");
         try {
           const sanitized = data.rawResponse.replace(/```json/g, '').replace(/```/g, '');
           const parsedData = JSON.parse(sanitized);
@@ -73,12 +96,15 @@ export default function Home() {
             generatedImage: parsedData.generatedImage?.trimEnd()
           });
         } catch (parseError) {
+          clearInterval(loadingTimer);
           throw new Error('Failed to parse fashion recommendations');
         }
       } else {
         setResult(data);
       }
 
+      // Clear the loading timer when done
+      clearInterval(loadingTimer);
       setShowForm(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -209,7 +235,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr_auto] gap-8 p-4 sm:p-8 md:p-24 bg-gradient-to-b from-pink-50 to-white dark:from-purple-950 dark:to-gray-950">
-      <header className="text-center max-w-4xl mx-auto">
+      <header className="text-center max-w-4xl mx-auto mt-16 sm:mt-0">
         <h1 className="text-4xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
           KasiFesyen
         </h1>
@@ -279,72 +305,74 @@ export default function Home() {
               <h4 className="text-sm font-medium text-pink-900 dark:text-pink-100 mb-3">Personalize your recommendations</h4>
               
               <div className="flex flex-wrap gap-4 items-center">
-                {/* Gender selection */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-medium text-pink-700 dark:text-pink-300">You are:</label>
-                  <div className="flex gap-2">
+                {/* Gender and Halal mode selection */}
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-medium text-pink-700 dark:text-pink-300">You are:</label>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setGender('male')}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm ${gender === 'male' ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="5" r="3"/>
+                          <line x1="12" y1="8" x2="12" y2="21"/>
+                          <line x1="8" y1="18" x2="16" y2="16"/>
+                        </svg>
+                        Male
+                      </button>
+                      <button 
+                        onClick={() => setGender('female')}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm ${gender === 'female' ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="8" r="5"/>
+                          <path d="M12 13v8"/>
+                          <path d="M9 18h6"/>
+                        </svg>
+                        Female
+                      </button>
+                      <button 
+                        onClick={() => setGender('cat')}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm ${gender === 'cat' ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z"/>
+                          <path d="M8 14v.5"/>
+                          <path d="M16 14v.5"/>
+                          <path d="M11.25 16.25h1.5L12 17l-.75-.75Z"/>
+                        </svg>
+                        Cat
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Halal mode toggle */}
+                  <div className="flex items-center gap-2 ml-0 sm:ml-4">
+                    <label className="text-xs font-medium text-pink-700 dark:text-pink-300">Halal Mode:</label>
                     <button 
-                      onClick={() => setGender('male')}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm ${gender === 'male' ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      onClick={() => setHalalMode(!halalMode)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${halalMode ? 'bg-pink-500' : 'bg-gray-300 dark:bg-gray-600'}`}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="5" r="3"/>
-                        <line x1="12" y1="8" x2="12" y2="21"/>
-                        <line x1="8" y1="18" x2="16" y2="16"/>
+                      <span className="sr-only">Toggle Halal Mode</span>
+                      <span 
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${halalMode ? 'translate-x-6' : 'translate-x-1'}`}
+                      />
+                      <svg 
+                        className={`absolute right-1 h-4 w-4 ${halalMode ? 'text-white' : 'text-transparent'}`} 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      >
+                        <path d="M19 5c0 9-7 12-7 12s-7-3-7-12a7 7 0 0 1 14 0Z"/>
+                        <circle cx="12" cy="10" r="2"/>
                       </svg>
-                      Male
-                    </button>
-                    <button 
-                      onClick={() => setGender('female')}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm ${gender === 'female' ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="8" r="5"/>
-                        <path d="M12 13v8"/>
-                        <path d="M9 18h6"/>
-                      </svg>
-                      Female
-                    </button>
-                    <button 
-                      onClick={() => setGender('cat')}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm ${gender === 'cat' ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z"/>
-                        <path d="M8 14v.5"/>
-                        <path d="M16 14v.5"/>
-                        <path d="M11.25 16.25h1.5L12 17l-.75-.75Z"/>
-                      </svg>
-                      Cat
                     </button>
                   </div>
-                </div>
-                
-                {/* Halal mode toggle */}
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-pink-700 dark:text-pink-300">Halal Mode:</label>
-                  <button 
-                    onClick={() => setHalalMode(!halalMode)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${halalMode ? 'bg-pink-500' : 'bg-gray-300 dark:bg-gray-600'}`}
-                  >
-                    <span className="sr-only">Toggle Halal Mode</span>
-                    <span 
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${halalMode ? 'translate-x-6' : 'translate-x-1'}`}
-                    />
-                    <svg 
-                      className={`absolute right-1 h-4 w-4 ${halalMode ? 'text-white' : 'text-transparent'}`} 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    >
-                      <path d="M19 5c0 9-7 12-7 12s-7-3-7-12a7 7 0 0 1 14 0Z"/>
-                      <circle cx="12" cy="10" r="2"/>
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>

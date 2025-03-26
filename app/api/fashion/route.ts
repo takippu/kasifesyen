@@ -20,11 +20,59 @@ async function fileToGenerativePart(file: File) {
   };
 }
 
-// The prompt template for fashion recommendations
-const FASHION_PROMPT = `
-You are a fashion expert. Analyze the uploaded clothing item in the image and provide detailed fashion recommendations.
+// Function to get gender-specific and halal mode fashion guidelines
+function getFashionGuidelines(gender: string, halalMode: boolean): string {
+  let guidelines = '';
 
-1. Identify the type of clothing item (e.g., shirt, pants, dress, etc.)
+  if (gender === 'cat') {
+    guidelines = 'Create adorable and comfortable cat fashion recommendations.';
+  } else if (halalMode) {
+    if (gender === 'male') {
+      guidelines = `Fashion recommendations MUST strictly adhere to Islamic principles of modesty for men:
+- Clothing MUST cover from navel to knees at minimum - this is mandatory
+- Garments MUST be loose-fitting and not form-fitting or revealing
+- Fabrics MUST be completely opaque, not see-through or transparent
+- Shorts or pants MUST extend below the knees when standing and sitting
+- Shirts/tops MUST cover the navel area even when raising arms
+- NO silk garments or gold accessories are permitted
+- NO clothing imitating or resembling women's attire
+- NO clothing with inappropriate imagery or text
+- NO garments promoting other religions or anti-Islamic values
+- Consider appropriate coverage for different contexts (prayer, work, casual)
+- While being stylish is encouraged, modesty requirements CANNOT be compromised
+- These guidelines are mandatory and not subject to interpretation`;
+    } else { // female
+      guidelines = `Fashion recommendations MUST strictly follow Islamic principles of modesty for women without exception:
+- FULL coverage of entire body is MANDATORY except face and hands
+- Hijab MUST fully cover hair, ears, neck, and chest - no exceptions
+- NO part of the hair, neck or chest area may be visible
+- Garments MUST be loose-fitting - NO form-fitting or body-hugging clothes
+- Clothing MUST NOT reveal or highlight body shape in any way
+- Fabrics MUST be completely opaque - NO see-through or semi-transparent materials
+- NO slits, cuts, or openings that reveal skin
+- Sleeves MUST cover full arms to wrists
+- Pants/skirts MUST be loose and extend to ankles
+- NO ankle exposure when walking or sitting
+- Outer garments MUST be thick enough to conceal undergarments
+- NO clothing resembling men's attire
+- NO garments with inappropriate imagery or text
+- NO clothing promoting other religions or anti-Islamic values
+- These requirements are mandatory and not subject to interpretation
+- While being stylish is encouraged, modesty requirements CANNOT be compromised`;
+    }
+  } else {
+    guidelines = `Create fashion recommendations suitable for ${gender === 'male' ? 'men' : 'women'}.`;
+  }
+
+  return guidelines;
+}
+// The prompt template for fashion recommendations
+const FASHION_PROMPT = (gender: string, halalMode: boolean) => `
+You are a fashion expert specializing in ${gender === 'cat' ? 'cat fashion' : `${gender}'s fashion`}. ${getFashionGuidelines(gender, halalMode)}
+
+Analyze the uploaded clothing item in the image and provide detailed fashion recommendations.
+
+1. Identify the type of clothing item (e.g., ${gender === 'cat' ? 'cat sweater, harness, bowtie' : 'shirt, pants, dress, etc'})
 2. Describe its key features (color, pattern, material, style)
 3. Suggest 3 different outfit combinations that would work well with this item
 4. For each outfit, explain why it works and what occasions it would be suitable for
@@ -61,11 +109,15 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const imageFile = formData.get('image') as File | null;
     const textPrompt = formData.get('prompt') as string | null;
+    const gender = formData.get('gender') as 'male' | 'female' | 'cat' || 'female';
+    const halalMode = formData.get('halalMode') === 'true';
     
     console.log('Request data:', { 
       hasImage: !!imageFile, 
       hasTextPrompt: !!textPrompt,
-      textPromptContent: textPrompt
+      textPromptContent: textPrompt,
+      gender,
+      halalMode
     });
 
     // Check if either image or text prompt is provided
@@ -111,7 +163,7 @@ export async function POST(request: NextRequest) {
       
       // Generate content with the image and prompt
       console.log('Sending request to Gemini API with image...');
-      const result = await model.generateContent([FASHION_PROMPT, imagePart]);
+      const result = await model.generateContent([FASHION_PROMPT(gender, halalMode), imagePart]);
       console.log('Received response from Gemini API');
       
       const response = await result.response;
@@ -234,7 +286,7 @@ export async function POST(request: NextRequest) {
       const textModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       
       // Combine the fashion prompt with the user's text prompt
-      const combinedPrompt = `${FASHION_PROMPT}\n\nUser's description: ${textPrompt}`;
+      const combinedPrompt = `${FASHION_PROMPT(gender, halalMode)}\n\nUser's description: ${textPrompt}`;
       console.log('Combined prompt created, first 200 chars:', combinedPrompt.substring(0, 200) + '...');
       
       // Generate content with the text prompt
