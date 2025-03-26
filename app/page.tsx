@@ -5,7 +5,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { OutfitCarousel } from "@/components/ui/outfit-carousel";
 import { ImageDialog } from "@/components/ui/image-dialog";
-import { RefreshCw } from "lucide-react";
+import { VideoDialog } from "@/components/ui/video-dialog";
+import { RefreshCw, PlayCircle, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +22,8 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<{src: string, alt: string} | null>(null);
   const [gender, setGender] = useState<'male' | 'female' | 'cat'>('female');
   const [halalMode, setHalalMode] = useState(false);
+  const [halalInfoOpen, setHalalInfoOpen] = useState(false);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -32,6 +36,14 @@ export default function Home() {
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextPrompt(e.target.value);
+  };
+
+  const toggleHalalMode = () => {
+    const newMode = !halalMode;
+    setHalalMode(newMode);
+    if (newMode) {
+      setHalalInfoOpen(true);
+    }
   };
 
   const handleSubmit = async () => {
@@ -239,9 +251,17 @@ export default function Home() {
         <h1 className="text-4xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
           KasiFesyen
         </h1>
-        <p className="text-base sm:text-lg text-pink-800/80 dark:text-pink-200/80 font-serif italic">
+        <p className="text-base sm:text-lg text-pink-800/80 dark:text-pink-200/80 font-serif italic mb-4">
           Your AI-powered personal fashion stylist
         </p>
+        <Button
+          onClick={() => setVideoDialogOpen(true)}
+          variant="ghost"
+          className="mx-auto flex items-center gap-2 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-purple-900/20"
+        >
+          <PlayCircle size={20} />
+          <span>Watch Tutorial</span>
+        </Button>
       </header>
 
       <main className="max-w-4xl mx-auto w-full">
@@ -351,7 +371,7 @@ export default function Home() {
                   <div className="flex items-center gap-2 ml-0 sm:ml-4">
                     <label className="text-xs font-medium text-pink-700 dark:text-pink-300">Halal Mode:</label>
                     <button 
-                      onClick={() => setHalalMode(!halalMode)}
+                      onClick={toggleHalalMode}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${halalMode ? 'bg-pink-500' : 'bg-gray-300 dark:bg-gray-600'}`}
                     >
                       <span className="sr-only">Toggle Halal Mode</span>
@@ -424,6 +444,58 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Halal Mode Information Dialog */}
+      <AnimatePresence>
+        {halalInfoOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <motion.div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setHalalInfoOpen(false)}
+            />
+            <motion.div
+              className="relative z-10 bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md mx-4 shadow-2xl border border-pink-100 dark:border-purple-800"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
+                  <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Halal Mode Information</h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    Please note that while Halal Mode attempts to provide modest fashion recommendations according to Islamic guidelines, the results may not fully adhere to these guidelines due to limitations in the AI's understanding and implementation.
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    We recommend using your own judgment when evaluating the modesty of the suggested outfits.
+                  </p>
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={() => setHalalInfoOpen(false)}
+                      className="bg-pink-500 hover:bg-pink-600 text-white"
+                    >
+                      I Understand
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Video Tutorial Dialog */}
+      <VideoDialog 
+        isOpen={videoDialogOpen}
+        onClose={() => setVideoDialogOpen(false)}
+        videoId="dQw4w9WgXcQ" // Example YouTube video ID
+        title="How to Use KasiFesyen"
+      />
     </div>
   );
 }

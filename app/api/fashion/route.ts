@@ -28,37 +28,9 @@ function getFashionGuidelines(gender: string, halalMode: boolean): string {
     guidelines = 'Create adorable and comfortable cat fashion recommendations.';
   } else if (halalMode) {
     if (gender === 'male') {
-      guidelines = `Fashion recommendations MUST strictly adhere to Islamic principles of modesty for men:
-- Clothing MUST cover from navel to knees at minimum - this is mandatory
-- Garments MUST be loose-fitting and not form-fitting or revealing
-- Fabrics MUST be completely opaque, not see-through or transparent
-- Shorts or pants MUST extend below the knees when standing and sitting
-- Shirts/tops MUST cover the navel area even when raising arms
-- NO silk garments or gold accessories are permitted
-- NO clothing imitating or resembling women's attire
-- NO clothing with inappropriate imagery or text
-- NO garments promoting other religions or anti-Islamic values
-- Consider appropriate coverage for different contexts (prayer, work, casual)
-- While being stylish is encouraged, modesty requirements CANNOT be compromised
-- These guidelines are mandatory and not subject to interpretation`;
+      guidelines = 'Ensure all outfits cover from knee to above the navel, adhering to Islamic guidelines for male modesty.';
     } else { // female
-      guidelines = `Fashion recommendations MUST strictly follow Islamic principles of modesty for women without exception:
-- FULL coverage of entire body is MANDATORY except face and hands
-- Hijab MUST fully cover hair, ears, neck, and chest - no exceptions
-- NO part of the hair, neck or chest area may be visible
-- Garments MUST be loose-fitting - NO form-fitting or body-hugging clothes
-- Clothing MUST NOT reveal or highlight body shape in any way
-- Fabrics MUST be completely opaque - NO see-through or semi-transparent materials
-- NO slits, cuts, or openings that reveal skin
-- Sleeves MUST cover full arms to wrists
-- Pants/skirts MUST be loose and extend to ankles
-- NO ankle exposure when walking or sitting
-- Outer garments MUST be thick enough to conceal undergarments
-- NO clothing resembling men's attire
-- NO garments with inappropriate imagery or text
-- NO clothing promoting other religions or anti-Islamic values
-- These requirements are mandatory and not subject to interpretation
-- While being stylish is encouraged, modesty requirements CANNOT be compromised`;
+      guidelines = 'Ensure all outfits provide full coverage from head to toe, including a hijab that covers hair, ears, and neck (showing only the oval face shape). Avoid outfits that reveal body shape/lines. The chest should be covered fully by the hijab **THIS IS IMPORTANT**.';
     }
   } else {
     guidelines = `Create fashion recommendations suitable for ${gender === 'male' ? 'men' : 'women'}.`;
@@ -66,6 +38,7 @@ function getFashionGuidelines(gender: string, halalMode: boolean): string {
 
   return guidelines;
 }
+
 // The prompt template for fashion recommendations
 const FASHION_PROMPT = (gender: string, halalMode: boolean) => `
 You are a fashion expert specializing in ${gender === 'cat' ? 'cat fashion' : `${gender}'s fashion`}. ${getFashionGuidelines(gender, halalMode)}
@@ -226,16 +199,19 @@ export async function POST(request: NextRequest) {
           for (let i = 0; i < jsonResponse.outfits.length; i++) {
             const outfit = jsonResponse.outfits[i];
             if (!outfit.outfitPrompt) {
-              // Create a prompt based on outfit details if outfitPrompt is not provided
-              outfit.outfitPrompt = `A photorealistic fashion outfit consisting of ${outfit.pieces.join(', ')} for ${outfit.occasions.join(', ')}. The outfit includes ${jsonResponse.itemDescription.color} ${jsonResponse.itemType}.`;
+              // Create a detailed prompt based on outfit details and the original item's characteristics
+              const itemDesc = jsonResponse.itemDescription;
+              const detailedItemDescription = `${itemDesc.color} ${jsonResponse.itemType} with ${itemDesc.pattern} pattern, made of ${itemDesc.material} material, in a ${itemDesc.style} style`;
+              
+              outfit.outfitPrompt = `A photorealistic fashion outfit consisting of ${outfit.pieces.join(', ')} for ${outfit.occasions.join(', ')}. The outfit MUST prominently feature the exact ${detailedItemDescription} that the user described. Maintain the precise color, pattern, material, and style characteristics of the original item.`;
             }
             
             console.log(`Generating image for outfit ${i+1}: ${outfit.name}`);
             console.log('Prompt:', outfit.outfitPrompt);
             
             try {
-              // Send the outfit prompt to the chat session
-              const imageResult = await chatSession.sendMessage(`Generate a photorealistic image of: ${outfit.outfitPrompt}`);
+              // Send the outfit prompt to the chat session with enhanced instructions for accuracy
+              const imageResult = await chatSession.sendMessage(`Generate a photorealistic image of: ${outfit.outfitPrompt}. It is CRITICAL that the generated image precisely matches the characteristics of the user's described clothing item, including exact color, pattern, material, and style details.`);
               
               // Extract image data from the response
               let imageData = null;
@@ -356,16 +332,19 @@ export async function POST(request: NextRequest) {
           for (let i = 0; i < jsonResponse.outfits.length; i++) {
             const outfit = jsonResponse.outfits[i];
             if (!outfit.outfitPrompt) {
-              // Create a prompt based on outfit details if outfitPrompt is not provided
-              outfit.outfitPrompt = `A photorealistic fashion outfit consisting of ${outfit.pieces.join(', ')} for ${outfit.occasions.join(', ')}. The outfit includes ${jsonResponse.itemDescription.color} ${jsonResponse.itemType}.`;
+              // Create a detailed prompt based on outfit details and the original item's characteristics
+              const itemDesc = jsonResponse.itemDescription;
+              const detailedItemDescription = `${itemDesc.color} ${jsonResponse.itemType} with ${itemDesc.pattern} pattern, made of ${itemDesc.material} material, in a ${itemDesc.style} style`;
+              
+              outfit.outfitPrompt = `A photorealistic fashion outfit consisting of ${outfit.pieces.join(', ')} for ${outfit.occasions.join(', ')}. The outfit MUST prominently feature the exact ${detailedItemDescription} that the user described. Maintain the precise color, pattern, material, and style characteristics of the original item.`;
             }
             
             console.log(`Generating image for outfit ${i+1}: ${outfit.name}`);
             console.log('Prompt:', outfit.outfitPrompt);
             
             try {
-              // Send the outfit prompt to the chat session
-              const imageResult = await chatSession.sendMessage(`Generate a photorealistic image of: ${outfit.outfitPrompt}`);
+              // Send the outfit prompt to the chat session with enhanced instructions for accuracy
+              const imageResult = await chatSession.sendMessage(`Generate a photorealistic image of: ${outfit.outfitPrompt}. It is CRITICAL that the generated image precisely matches the characteristics of the user's described clothing item, including exact color, pattern, material, and style details.`);
               
               // Extract image data from the response
               let imageData = null;
