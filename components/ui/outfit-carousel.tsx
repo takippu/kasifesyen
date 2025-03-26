@@ -69,10 +69,10 @@ export function OutfitCarousel({ outfits }: OutfitCarouselProps) {
             >
               <div className="p-4 bg-pink-50/50 dark:bg-purple-950/50 rounded-lg h-full">
                 <div className="flex flex-col md:flex-row gap-6">
-                  {outfit.generatedImage && (
-                    <div className="flex-shrink-0">
+                  <div className="flex-shrink-0">
+                    {outfit.generatedImage ? (
                       <div 
-                        className="relative w-full md:w-48 h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700 cursor-pointer transition-transform hover:scale-[1.02]"
+                        className="relative w-full md:w-48 h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700 cursor-pointer transition-transform hover:scale-[1.02] aspect-square"
                         onClick={() => {
                           setSelectedImage({
                             src: outfit.generatedImage as string,
@@ -86,10 +86,19 @@ export function OutfitCarousel({ outfits }: OutfitCarouselProps) {
                           alt={`${outfit.name} outfit`}
                           fill
                           className="object-cover w-full h-full"
+                          sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="relative w-full md:w-48 h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700 flex items-center justify-center bg-pink-50 dark:bg-purple-950/30 aspect-square">
+                        <div className="text-center p-2">
+                          <div className="text-pink-400 dark:text-pink-300 mb-1 text-3xl">👗</div>
+                          <p className="text-xs text-pink-500 dark:text-pink-300">Outfit visualization</p>
+                          <p className="text-xs text-pink-400 dark:text-pink-200 mt-1">See description</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-grow">
                     <h4 className="font-medium text-pink-600 dark:text-pink-400 mb-3">
                       {outfit.name}

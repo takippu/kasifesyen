@@ -269,8 +269,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen grid grid-rows-[auto_1fr_auto] gap-8 p-4 sm:p-8 md:p-24 bg-gradient-to-b from-pink-50 to-white dark:from-purple-950 dark:to-gray-950">
-      <header className="text-center max-w-4xl mx-auto mt-16 sm:mt-0">
+    <div className="min-h-screen grid grid-rows-[auto_1fr_auto] gap-4 sm:gap-8 p-4 sm:p-8 md:p-24 bg-gradient-to-b from-pink-50 to-white dark:from-purple-950 dark:to-gray-950">
+      <header className="text-center max-w-4xl mx-auto mt-8 sm:mt-16">
         <h1 className="text-4xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
           KasiFesyen
         </h1>

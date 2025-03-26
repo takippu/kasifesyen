@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
+
+type GeminiImageConfig = {
+  model: string;
+  generationConfig: {
+    temperature: number;
+    topP: number;
+    topK: number;
+    maxOutputTokens: number;
+    responseModalities: string[];
+    responseMimeType: string;
+  };
+};
+
 // Initialize the Google Generative AI with your API key
 // The API key will be provided by the user
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -173,9 +186,9 @@ export async function POST(request: NextRequest) {
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              // responseModalities: ["image", "text"],
+              responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
-            }
+            } as GeminiImageConfig['generationConfig']
           });
           
           // Create a chat session for image generation
@@ -185,9 +198,9 @@ export async function POST(request: NextRequest) {
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              // responseModalities: ["image", "text"],
+              responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
-            },
+            } as GeminiImageConfig['generationConfig'],
             history: []
           });
           
@@ -231,12 +244,13 @@ export async function POST(request: NextRequest) {
               }
               
               const imageUrl = imageData ? `data:image/png;base64,${imageData}` : null;
-              outfit.generatedImage = imageUrl;
+              // If image generation fails, provide a placeholder image URL
+              outfit.generatedImage = imageUrl || '/placeholder-outfit.png';
               console.log(`Generated image for outfit ${i+1}: ${imageUrl ? 'Success' : 'Failed'}`);
               
             } catch (outfitError) {
               console.error(`Error generating image for outfit ${i+1}:`, outfitError);
-              outfit.generatedImage = null;
+              outfit.generatedImage = '/placeholder-outfit.png';
             }
           }
         } catch (error) {
@@ -306,21 +320,21 @@ export async function POST(request: NextRequest) {
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              // responseModalities: ["image", "text"],
+              responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
-            }
+            } as GeminiImageConfig['generationConfig']
           });
           
           // Create a chat session for image generation
           const chatSession = imageModel.startChat({
             generationConfig: {
-              temperature: 1,
+              temperature: 1, 
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192,
-              // responseModalities: ["image", "text"],
+              responseModalities: ["image", "text"],
               responseMimeType: "text/plain"
-            },
+            } as GeminiImageConfig['generationConfig'],
             history: []
           });
           
@@ -364,12 +378,13 @@ export async function POST(request: NextRequest) {
               }
               
               const imageUrl = imageData ? `data:image/png;base64,${imageData}` : null;
-              outfit.generatedImage = imageUrl;
+              // If image generation fails, provide a placeholder image URL
+              outfit.generatedImage = imageUrl || '/placeholder-outfit.png';
               console.log(`Generated image for outfit ${i+1}: ${imageUrl ? 'Success' : 'Failed'}`);
               
             } catch (outfitError) {
               console.error(`Error generating image for outfit ${i+1}:`, outfitError);
-              outfit.generatedImage = null;
+              outfit.generatedImage = '/placeholder-outfit.png';
             }
           }
         } catch (error) {
@@ -382,7 +397,7 @@ export async function POST(request: NextRequest) {
         console.error('Failed to parse JSON response:', e);
         console.log('Returning raw response instead');
         // If the response is not valid JSON, return it as text
-        return NextResponse.json({ rawResponse: Text });
+        return NextResponse.json({ rawResponse: rawText });
       }
     }
 
