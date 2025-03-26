@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { GoogleAIFileManager } from '@google/generative-ai/server';
+import * as fs from 'node:fs';
+import mime from 'mime-types';
 
 // Initialize the Google Generative AI with your API key
 // The API key will be provided by the user
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     // Configure the model
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -136,10 +139,80 @@ export async function POST(request: NextRequest) {
         if (!jsonResponse?.itemType || !jsonResponse?.outfits?.length || !jsonResponse?.stylingTips?.length || !jsonResponse?.itemDescription) {
           throw new Error('Invalid JSON structure from Gemini API');
         }
-        if (!jsonResponse?.itemType || !jsonResponse?.outfits?.length || !jsonResponse?.stylingTips?.length || !jsonResponse?.itemDescription) {
-          throw new Error('Invalid JSON structure from Gemini API');
+        
+        // Generate image if prompt exists
+        if (jsonResponse.imagePrompt) {
+          try {
+            console.log('Starting image generation process...');
+            
+            // Use the new image generation model
+            console.log('Using Gemini 2.0 Flash Exp Image Generation model with prompt:', jsonResponse.imagePrompt);
+            const imageModel = genAI.getGenerativeModel({
+              model: "gemini-2.0-flash-exp-image-generation",
+              generationConfig: {
+                temperature: 1,
+                topP: 0.95,
+                topK: 40,
+                maxOutputTokens: 8192,
+                responseModalities: ["image", "text"],
+                responseMimeType: "text/plain"
+              }
+            });
+            
+            // Create a chat session for image generation
+            console.log('Starting chat session for image generation...');
+            const chatSession = imageModel.startChat({
+              generationConfig: {
+                temperature: 1,
+                topP: 0.95,
+                topK: 40,
+                maxOutputTokens: 8192,
+                responseModalities: ["image", "text"],
+                responseMimeType: "text/plain"
+              },
+              history: []
+            });
+            
+            // Send the image prompt to the chat session
+            console.log('Sending image generation request...');
+            const imageResult = await chatSession.sendMessage(`Generate a photorealistic image of: ${jsonResponse.imagePrompt}`);
+            console.log('Received image generation response');
+            
+            // Extract image data from the response
+            let imageData = null;
+            const candidates = imageResult.response.candidates || [];
+            console.log('Response candidates count:', candidates.length);
+            
+            // Process each candidate and part to find image data
+            for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex++) {
+              const parts = candidates[candidateIndex]?.content?.parts || [];
+              console.log(`Candidate ${candidateIndex} parts count:`, parts.length);
+              
+              for (let partIndex = 0; partIndex < parts.length; partIndex++) {
+                const part = parts[partIndex];
+                console.log(`Part ${partIndex} type:`, part.text ? 'text' : part.inlineData ? 'inlineData' : 'unknown');
+                
+                if (part.inlineData) {
+                  imageData = part.inlineData.data;
+                  console.log(`Found image data in candidate ${candidateIndex}, part ${partIndex}`);
+                  break;
+                }
+              }
+              
+              if (imageData) break;
+            }
+            
+            const imageUrl = imageData ? `data:image/png;base64,${imageData}` : null;
+            console.log('Generated image data URL:', imageUrl ? `${imageUrl.substring(0, 50)}...` : 'No image generated');
+            console.log('Text response:', imageResult.response.text());
+            
+            jsonResponse.generatedImage = imageUrl || null;
+          } catch (error) {
+            console.error('Image generation error:', error);
+            jsonResponse.generatedImage = null;
+          }
         }
-        console.log('Successfully parsed JSON response:', JSON.stringify(jsonResponse).substring(0, 500) + '...');
+        
         return NextResponse.json(jsonResponse);
       } catch (e) {
         console.error('Failed to parse JSON response:', e);
@@ -151,7 +224,7 @@ export async function POST(request: NextRequest) {
       console.log('Processing text prompt:', textPrompt);
       
       // If only text prompt is provided, use the text-only model
-      const textModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const textModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       
       // Combine the fashion prompt with the user's text prompt
       const combinedPrompt = `${FASHION_PROMPT}\n\nUser's description: ${textPrompt}`;
@@ -189,6 +262,80 @@ export async function POST(request: NextRequest) {
 
         console.log('Successfully parsed validated JSON response');
         console.log('Successfully parsed JSON response:', JSON.stringify(jsonResponse).substring(0, 500) + '...');
+        
+        // Generate image if prompt exists
+        if (jsonResponse.imagePrompt) {
+          try {
+            console.log('Starting image generation process...');
+            
+            // Use the new image generation model
+            console.log('Using Gemini 2.0 Flash Exp Image Generation model with prompt:', jsonResponse.imagePrompt);
+            const imageModel = genAI.getGenerativeModel({
+              model: "gemini-2.0-flash-exp-image-generation",
+              generationConfig: {
+                temperature: 1,
+                topP: 0.95,
+                topK: 40,
+                maxOutputTokens: 8192,
+                responseModalities: ["image", "text"],
+                responseMimeType: "text/plain"
+              }
+            });
+            
+            // Create a chat session for image generation
+            console.log('Starting chat session for image generation...');
+            const chatSession = imageModel.startChat({
+              generationConfig: {
+                temperature: 1,
+                topP: 0.95,
+                topK: 40,
+                maxOutputTokens: 8192,
+                responseModalities: ["image", "text"],
+                responseMimeType: "text/plain"
+              },
+              history: []
+            });
+            
+            // Send the image prompt to the chat session
+            console.log('Sending image generation request...');
+            const imageResult = await chatSession.sendMessage(`Generate a photorealistic image of: ${jsonResponse.imagePrompt}`);
+            console.log('Received image generation response');
+            
+            // Extract image data from the response
+            let imageData = null;
+            const candidates = imageResult.response.candidates || [];
+            console.log('Response candidates count:', candidates.length);
+            
+            // Process each candidate and part to find image data
+            for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex++) {
+              const parts = candidates[candidateIndex]?.content?.parts || [];
+              console.log(`Candidate ${candidateIndex} parts count:`, parts.length);
+              
+              for (let partIndex = 0; partIndex < parts.length; partIndex++) {
+                const part = parts[partIndex];
+                console.log(`Part ${partIndex} type:`, part.text ? 'text' : part.inlineData ? 'inlineData' : 'unknown');
+                
+                if (part.inlineData) {
+                  imageData = part.inlineData.data;
+                  console.log(`Found image data in candidate ${candidateIndex}, part ${partIndex}`);
+                  break;
+                }
+              }
+              
+              if (imageData) break;
+            }
+            
+            const imageUrl = imageData ? `data:image/png;base64,${imageData}` : null;
+            console.log('Generated image data URL:', imageUrl ? `${imageUrl.substring(0, 50)}...` : 'No image generated');
+            console.log('Text response:', imageResult.response.text());
+            
+            jsonResponse.generatedImage = imageUrl || null;
+          } catch (error) {
+            console.error('Image generation error:', error);
+            jsonResponse.generatedImage = null;
+          }
+        }
+        
         return NextResponse.json(jsonResponse);
       } catch (e) {
         console.error('Failed to parse JSON response:', e);
