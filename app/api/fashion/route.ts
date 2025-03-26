@@ -84,7 +84,12 @@ Format your response as a JSON object with the following structure:
 }
 `;
 
+// Set a timeout for the entire request processing
+const TIMEOUT_DURATION = 25000; // 25 seconds to stay within Vercel's 30s limit
+
 export async function POST(request: NextRequest) {
+  const requestStartTime = Date.now();
+
   try {
     console.log('API route called: /api/fashion');
     
@@ -174,8 +179,13 @@ export async function POST(request: NextRequest) {
           throw new Error('Invalid JSON structure from Gemini API');
         }
         
-        // Generate images for each outfit suggestion
+        // Generate only one image for the first outfit to reduce processing time
         try {
+          // Skip image generation if we're close to timeout
+          if (Date.now() - requestStartTime > TIMEOUT_DURATION * 0.6) {
+            console.log('Skipping image generation due to time constraints');
+            return NextResponse.json(jsonResponse);
+          }
           console.log('Starting image generation process for outfit suggestions...');
           
           // Use the new image generation model
@@ -204,8 +214,9 @@ export async function POST(request: NextRequest) {
             history: []
           });
           
-          // Generate an image for each outfit
-          for (let i = 0; i < jsonResponse.outfits.length; i++) {
+          // Generate only one image for the first outfit
+          const i = 0; // Only process the first outfit
+          if (i < jsonResponse.outfits.length) {
             const outfit = jsonResponse.outfits[i];
             if (!outfit.outfitPrompt) {
               // Create a detailed prompt based on outfit details and the original item's characteristics
@@ -308,8 +319,13 @@ export async function POST(request: NextRequest) {
         console.log('Successfully parsed validated JSON response');
         console.log('Successfully parsed JSON response:', JSON.stringify(jsonResponse).substring(0, 500) + '...');
         
-        // Generate images for each outfit suggestion
+        // Generate only one image for the first outfit to reduce processing time
         try {
+          // Skip image generation if we're close to timeout
+          if (Date.now() - requestStartTime > TIMEOUT_DURATION * 0.6) {
+            console.log('Skipping image generation due to time constraints');
+            return NextResponse.json(jsonResponse);
+          }
           console.log('Starting image generation process for outfit suggestions...');
           
           // Use the new image generation model
@@ -338,8 +354,9 @@ export async function POST(request: NextRequest) {
             history: []
           });
           
-          // Generate an image for each outfit
-          for (let i = 0; i < jsonResponse.outfits.length; i++) {
+          // Generate only one image for the first outfit
+          const i = 0; // Only process the first outfit
+          if (i < jsonResponse.outfits.length) {
             const outfit = jsonResponse.outfits[i];
             if (!outfit.outfitPrompt) {
               // Create a detailed prompt based on outfit details and the original item's characteristics
