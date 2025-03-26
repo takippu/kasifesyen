@@ -6,7 +6,7 @@ import { ModeToggle } from "@/components/ui/toggle"
 export function FloatingNav() {
   return (
     <nav className="fixed top-4 left-0 right-0 w-full z-50">
-      <div className="mx-auto w-1/4 min-w-[200px] max-w-[300px]">
+      <div className="mx-auto w-fit max-w-md">
         <div className="bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg rounded-lg border border-white/20 dark:border-gray-800/20">
           <div className="flex items-center justify-between p-2">
             <div className="flex space-x-4">
