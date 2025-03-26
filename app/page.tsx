@@ -128,28 +128,43 @@ export default function Home() {
                       key={index}
                       className="p-4 bg-pink-50/50 dark:bg-purple-950/50 rounded-lg"
                     >
-                      <h4 className="font-medium text-pink-600 dark:text-pink-400 mb-3">
-                        {outfit.name}
-                      </h4>
-                      <div className="space-y-2">
-                        {outfit.pieces && (
-                          <p>
-                            <span className="font-medium">Pieces: </span>
-                            {outfit.pieces.join(", ")}
-                          </p>
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {outfit.generatedImage && (
+                          <div className="flex-shrink-0">
+                            <div className="relative w-full md:w-48 h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700">
+                              <img 
+                                src={outfit.generatedImage} 
+                                alt={`${outfit.name} outfit`}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                          </div>
                         )}
-                        {outfit.occasions && (
-                          <p>
-                            <span className="font-medium">Occasions: </span>
-                            {outfit.occasions.join(", ")}
-                          </p>
-                        )}
-                        {outfit.reasoning && (
-                          <p>
-                            <span className="font-medium">Why it works: </span>
-                            {outfit.reasoning}
-                          </p>
-                        )}
+                        <div className="flex-grow">
+                          <h4 className="font-medium text-pink-600 dark:text-pink-400 mb-3">
+                            {outfit.name}
+                          </h4>
+                          <div className="space-y-2">
+                            {outfit.pieces && (
+                              <p>
+                                <span className="font-medium">Pieces: </span>
+                                {outfit.pieces.join(", ")}
+                              </p>
+                            )}
+                            {outfit.occasions && (
+                              <p>
+                                <span className="font-medium">Occasions: </span>
+                                {outfit.occasions.join(", ")}
+                              </p>
+                            )}
+                            {outfit.reasoning && (
+                              <p>
+                                <span className="font-medium">Why it works: </span>
+                                {outfit.reasoning}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -171,19 +186,7 @@ export default function Home() {
               </section>
             )}
 
-            {/* Image Generation Prompt */}
-            {result.imagePrompt && (
-              <section>
-                <h3 className="text-xl font-semibold mb-3 text-pink-700 dark:text-pink-300">
-                  Image Generation Prompt
-                </h3>
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="italic text-gray-700 dark:text-gray-300">
-                    {result.imagePrompt}
-                  </p>
-                </div>
-              </section>
-            )}
+            {/* Image Generation Prompt section removed as requested */}
           </div>
         </div>
 
