@@ -161,24 +161,24 @@ export default function Home() {
     if (!result) return null;
 
     return (
-      <div className="mt-8 space-y-8">
-        <div className="bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-lg border border-pink-100/50 dark:border-purple-900/50 p-6">
-          <h2 className="text-2xl font-bold mb-6 text-pink-800 dark:text-pink-200">
+      <div className="mt-4 sm:mt-8 space-y-6 sm:space-y-8">
+        <div className="bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-lg border border-pink-100/50 dark:border-purple-900/50 p-4 sm:p-6">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-pink-800 dark:text-pink-200">
             Fashion Recommendations
           </h2>
           
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Item Details */}
             <section>
-              <h3 className="text-xl font-semibold mb-4 text-pink-700 dark:text-pink-300">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-pink-700 dark:text-pink-300">
                 {result.itemType}
               </h3>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <h4 className="font-medium text-pink-600 dark:text-pink-400 mb-3">
+                  <h4 className="font-medium text-pink-600 dark:text-pink-400 mb-2 sm:mb-3">
                     Item Description
                   </h4>
-                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                  <ul className="space-y-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
                     {Object.entries(result.itemDescription || {}).map(([key, value]) => (
                       <li key={key} className="flex gap-2">
                         <span className="font-medium">{key}:</span>
@@ -189,7 +189,7 @@ export default function Home() {
                 </div>
                 {preview && (
                   <div className="flex justify-center items-center">
-                    <div className="relative w-48 h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700">
+                    <div className="relative w-36 h-36 sm:w-48 sm:h-48 rounded-lg overflow-hidden border-2 border-pink-200 dark:border-purple-700">
                       <Image 
                         src={preview} 
                         alt="Uploaded item" 
@@ -205,7 +205,7 @@ export default function Home() {
            {/* Outfit Suggestions */}
             {Array.isArray(result.outfits) && result.outfits.length > 0 && (
               <section>
-                <h3 className="text-xl font-semibold mb-4 text-pink-700 dark:text-pink-300">
+                <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-pink-700 dark:text-pink-300">
                   Outfit Suggestions
                 </h3>
                 <OutfitCarousel outfits={result.outfits} />
@@ -215,29 +215,27 @@ export default function Home() {
             {/* Styling Tips */}
             {Array.isArray(result.stylingTips) && result.stylingTips.length > 0 && (
               <section>
-                <h3 className="text-xl font-semibold mb-3 text-pink-700 dark:text-pink-300">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-pink-700 dark:text-pink-300">
                   Styling Tips
                 </h3>
-                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <ul className="list-disc list-inside space-y-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
                   {result.stylingTips.map((tip, index) => (
                     <li key={index}>{tip}</li>
                   ))}
                 </ul>
               </section>
             )}
-
-            {/* Image Generation Prompt section removed as requested */}
           </div>
         </div>
 
         {/* Generated Outfit Image */}
         {result.generatedImage && (
           <div className="flex flex-col items-center">
-            <h3 className="text-xl font-semibold mb-4 text-pink-700 dark:text-pink-300">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-pink-700 dark:text-pink-300">
               Generated Outfit
             </h3>
             <div 
-              className="relative rounded-xl shadow-lg border-2 border-pink-200 dark:border-purple-700 w-full max-w-sm h-96 cursor-pointer transition-transform hover:scale-[1.02]"
+              className="relative rounded-xl shadow-lg border-2 border-pink-200 dark:border-purple-700 w-full max-w-xs sm:max-w-sm h-64 sm:h-96 cursor-pointer transition-transform hover:scale-[1.02]"
               onClick={() => {
                 setSelectedImage({
                   src: result.generatedImage!,
@@ -269,12 +267,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen grid grid-rows-[auto_1fr_auto] gap-4 sm:gap-8 p-4 sm:p-8 md:p-24 bg-gradient-to-b from-pink-50 to-white dark:from-purple-950 dark:to-gray-950 overflow-x-hidden">
-      <header className="text-center max-w-4xl mx-auto mt-8 sm:mt-16">
-        <h1 className="text-4xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+    <div className="min-h-screen flex flex-col gap-4 sm:gap-8 p-4 sm:p-8 md:p-12 bg-gradient-to-b from-pink-50 to-white dark:from-purple-950 dark:to-gray-950 overflow-x-hidden">
+      <header className="text-center max-w-4xl mx-auto w-full mt-4 sm:mt-8">
+        <h1 className="text-3xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent px-4">
           KasiFesyen
         </h1>
-        <p className="text-base sm:text-lg text-pink-800/80 dark:text-pink-200/80 font-serif italic mb-4">
+        <p className="text-sm sm:text-lg text-pink-800/80 dark:text-pink-200/80 font-serif italic mb-4 px-4">
           Your AI-powered personal fashion stylist
         </p>
         <Button
@@ -287,10 +285,10 @@ export default function Home() {
         </Button>
       </header>
 
-      <main className="max-w-4xl mx-auto w-full">
+      <main className="flex-1 w-full max-w-4xl mx-auto px-4">
         {showForm ? (
-          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-pink-100/50 dark:border-purple-900/50">
-            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 sm:p-8 rounded-2xl shadow-xl border border-pink-100/50 dark:border-purple-900/50">
+            <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
               <div>
                 <label className="block mb-3 text-sm font-medium text-pink-900 dark:text-pink-100">
                   Upload your outfit
