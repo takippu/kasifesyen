@@ -308,6 +308,26 @@ export default function Home() {
                 </label>
                 <div 
                   onClick={() => document.getElementById('file-upload')?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.currentTarget.classList.add('border-pink-400');
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.currentTarget.classList.remove('border-pink-400');
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.currentTarget.classList.remove('border-pink-400');
+                    const file = e.dataTransfer.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                      setFile(file);
+                      setPreview(URL.createObjectURL(file));
+                    }
+                  }}
                   className="h-40 border-2 border-dashed border-pink-200 rounded-xl cursor-pointer hover:bg-pink-50/50 dark:hover:bg-purple-900/20 transition-all relative flex items-center justify-center"
                 >
                   <input 
