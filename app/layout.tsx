@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   title: "KasiFesyen - Your AI Fashion Stylist",
   description: "Get personalized fashion recommendations and outfit suggestions powered by AI.",
   keywords: "fashion, AI stylist, outfit recommendations, personal stylist, fashion advice, clothing combinations, style guide",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" }
+    ]
+  },
   openGraph: {
     title: "KasiFesyen - Your AI Fashion Stylist",
     description: "Get personalized fashion recommendations and outfit suggestions powered by AI",
