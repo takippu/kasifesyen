@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { OutfitCarousel } from "@/components/ui/outfit-carousel";
 import { ImageDialog } from "@/components/ui/image-dialog";
 import { VideoDialog } from "@/components/ui/video-dialog";
-import { RefreshCw, PlayCircle, AlertCircle } from "lucide-react";
+import { CameraView } from "@/components/ui/camera-view";
+import { RefreshCw, PlayCircle, AlertCircle, Camera, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ItemDescription {
@@ -44,6 +45,7 @@ export default function Home() {
   const [halalInfoOpen, setHalalInfoOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -268,6 +270,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col gap-4 sm:gap-8 p-4 sm:p-8 md:p-12 bg-gradient-to-b from-pink-50 to-white dark:from-purple-950 dark:to-gray-950 overflow-x-hidden">
+      {showCamera && (
+        <CameraView
+          onCapture={(capturedFile) => {
+            setFile(capturedFile);
+            const objectUrl = URL.createObjectURL(capturedFile);
+            setPreview(objectUrl);
+            setShowCamera(false);
+          }}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
       <header className="text-center max-w-4xl mx-auto w-full mt-4 sm:mt-8">
         <h1 className="text-3xl sm:text-5xl font-bold mb-2 sm:mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent px-4">
           KasiFesyen
@@ -305,24 +318,52 @@ export default function Home() {
                     onChange={handleFileChange}
                   />
                   {preview ? (
-                    <Image 
-                      src={preview} 
-                      alt="Preview" 
-                      fill 
-                      className="object-contain p-2"
-                    />
+                    <div className="relative w-full h-full">
+                      <Image 
+                        src={preview} 
+                        alt="Preview" 
+                        fill 
+                        className="object-contain p-2"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="absolute top-2 right-2 p-1.5 bg-white/80 hover:bg-white text-pink-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFile(null);
+                          setPreview(null);
+                        }}
+                      >
+                        <X size={16} />
+                      </Button>
+                    </div>
                   ) : (
-                    <div className="text-center">
+                    <div className="text-center space-y-2">
                       <Image
                         src="/upload.svg"
                         alt="Upload icon"
                         width={28}
                         height={28}
-                        className="mx-auto mb-2"
+                        className="mx-auto"
                       />
                       <p className="text-sm text-pink-600/80 dark:text-pink-300/80">
                         Click to upload or drag & drop
                       </p>
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center gap-2 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-purple-900/20"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowCamera(true);
+                          }}
+                        >
+                          <Camera size={16} />
+                          Use Camera
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
