@@ -85,7 +85,7 @@ Format your response as a JSON object with the following structure:
 `;
 
 // Set a timeout for the entire request processing
-const TIMEOUT_DURATION = 25000; // 25 seconds to stay within Vercel's 30s limit
+const TIMEOUT_DURATION = 60000; // 60 seconds to stay within Vercel's 30s limit
 
 export async function POST(request: NextRequest) {
   const requestStartTime = Date.now();
