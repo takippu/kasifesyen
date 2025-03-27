@@ -49,6 +49,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script src="https://cdn.counter.dev/script.js" data-id="2350b3bf-6568-4f59-ae32-b96d4d7ab181" data-utcoffset="8"></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
