@@ -214,9 +214,8 @@ export async function POST(request: NextRequest) {
             history: []
           });
           
-          // Generate only one image for the first outfit
-          const i = 0; // Only process the first outfit
-          if (i < jsonResponse.outfits.length) {
+          // Generate images for all outfits
+          for (let i = 0; i < jsonResponse.outfits.length; i++) {
             const outfit = jsonResponse.outfits[i];
             if (!outfit.outfitPrompt) {
               // Create a detailed prompt based on outfit details and the original item's characteristics
@@ -354,9 +353,8 @@ export async function POST(request: NextRequest) {
             history: []
           });
           
-          // Generate only one image for the first outfit
-          const i = 0; // Only process the first outfit
-          if (i < jsonResponse.outfits.length) {
+          // Generate images for all outfits
+          for (let i = 0; i < jsonResponse.outfits.length; i++) {
             const outfit = jsonResponse.outfits[i];
             if (!outfit.outfitPrompt) {
               // Create a detailed prompt based on outfit details and the original item's characteristics
