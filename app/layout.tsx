@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { FloatingNav } from "@/components/ui/floating-nav"
+import { FloatingNav } from "@/components/ui/floating-nav";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "KasiFesyen - Your AI Fashion Stylist",
-  description: "Get personalized fashion recommendations and outfit suggestions powered by AI. Create stunning looks with our smart fashion assistant.",
+  description: "Get personalized fashion recommendations and outfit suggestions powered by AI.",
   keywords: "fashion, AI stylist, outfit recommendations, personal stylist, fashion advice, clothing combinations, style guide",
   openGraph: {
     title: "KasiFesyen - Your AI Fashion Stylist",
@@ -49,20 +50,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script async src="https://cdn.counter.dev/script.js" data-id="2350b3bf-6568-4f59-ae32-b96d4d7ab181" data-utcoffset="8"></script>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Counter.dev script */}
+        <Script
+          strategy="afterInteractive"
+          src="https://cdn.counter.dev/script.js"
+          data-id="2350b3bf-6568-4f59-ae32-b96d4d7ab181"
+          data-utcoffset="8"
+        />
+        
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <FloatingNav />
-            {children}
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <FloatingNav />
+          {children}
         </ThemeProvider>
       </body>
     </html>
