@@ -42,6 +42,9 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<{src: string, alt: string} | null>(null);
   const [gender, setGender] = useState<'male' | 'female' | 'cat'>('female');
   const [halalMode, setHalalMode] = useState(false);
+  const [stylePreference, setStylePreference] = useState<'casual' | 'formal' | 'streetwear' | undefined>(undefined);
+  const [season, setSeason] = useState<'spring' | 'summer' | 'fall' | 'winter' | undefined>(undefined);
+  const [occasion, setOccasion] = useState<'daily' | 'work' | 'party' | 'special' | undefined>(undefined);
   const [halalInfoOpen, setHalalInfoOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +108,9 @@ export default function Home() {
       if (textPrompt) formData.append("prompt", textPrompt);
       formData.append("gender", gender);
       formData.append("halalMode", String(halalMode));
+      if (stylePreference) formData.append("stylePreference", stylePreference);
+      if (season) formData.append("season", season);
+      if (occasion) formData.append("occasion", occasion);
 
       setLoadingStage("Sending request to AI fashion expert...");
       const response = await fetch("/api/fashion", {
@@ -406,9 +412,10 @@ export default function Home() {
             <div className="mt-6 p-4 bg-pink-50/50 dark:bg-purple-950/50 rounded-xl">
               <h4 className="text-sm font-medium text-pink-900 dark:text-pink-100 mb-3">Personalize your recommendations</h4>
               
-              <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex flex-wrap gap-6 items-start">
                 {/* Gender and Halal mode selection */}
                 <div className="flex items-center gap-4 flex-wrap">
+                  {/* Existing gender and halal mode controls */}
                   <div className="space-y-2">
                     <label className="block text-xs font-medium text-pink-700 dark:text-pink-300">You are:</label>
                     <div className="flex gap-2">
@@ -474,6 +481,54 @@ export default function Home() {
                         <circle cx="12" cy="10" r="2"/>
                       </svg>
                     </button>
+                  </div>
+                </div>
+
+                {/* Style Preference */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-pink-700 dark:text-pink-300">Style Preference:</label>
+                  <div className="flex gap-2">
+                    {['casual', 'formal', 'streetwear'].map((style) => (
+                      <button
+                        key={style}
+                        onClick={() => setStylePreference(stylePreference === style ? undefined : (style as 'casual' | 'formal' | 'streetwear'))}
+                        className={`px-3 py-1.5 rounded-full text-sm capitalize ${stylePreference === style ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      >
+                        {style}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Season */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-pink-700 dark:text-pink-300">Season:</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {['spring', 'summer', 'fall', 'winter'].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => setSeason(season === s ? undefined : (s as 'spring' | 'summer' | 'fall' | 'winter'))}
+                        className={`px-3 py-1.5 rounded-full text-sm capitalize ${season === s ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Occasion */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-pink-700 dark:text-pink-300">Occasion:</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {['daily', 'work', 'party', 'special'].map((o) => (
+                      <button
+                        key={o}
+                        onClick={() => setOccasion(occasion === o ? undefined : (o as 'daily' | 'work' | 'party' | 'special'))}
+                        className={`px-3 py-1.5 rounded-full text-sm capitalize ${occasion === o ? 'bg-pink-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-pink-200 dark:border-purple-700'}`}
+                      >
+                        {o}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

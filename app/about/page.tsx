@@ -24,8 +24,8 @@ export default function About() {
             className="relative h-64 md:h-full rounded-2xl overflow-hidden shadow-xl border border-pink-200 dark:border-purple-800"
           >
             <Image 
-              src="/fashion-ai.jpg" 
-              alt="Fashion AI" 
+              src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&h=800&q=80" 
+              alt="Fashion Styling" 
               fill 
               className="object-cover"
             />
@@ -120,6 +120,31 @@ export default function About() {
           </div>
         </motion.div>
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 2.0 }}
+        className="text-center mt-16 mb-8 text-gray-600 dark:text-gray-400"
+      >
+        <p className="text-sm font-medium flex items-center justify-center gap-2">
+          Made with{" "}
+          <motion.span
+            animate={{
+              scale: [1, 1.2, 1],
+              transition: {
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
+            className="text-pink-500 dark:text-pink-400"
+          >
+            ❤️
+          </motion.span>{" "}
+          by Thaqif Rosdi
+        </p>
+      </motion.div>
     </div>
   );
 }

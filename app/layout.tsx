@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { FloatingNav } from "@/components/ui/floating-nav";
+import { PageTransition } from "@/components/ui/page-transition";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -72,7 +73,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FloatingNav />
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </ThemeProvider>
       </body>
     </html>

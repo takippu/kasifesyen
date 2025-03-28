@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
-
 type GeminiImageConfig = {
   model: string;
   generationConfig: {
@@ -31,7 +30,7 @@ async function fileToGenerativePart(file: File) {
 }
 
 // Function to get gender-specific and halal mode fashion guidelines
-function getFashionGuidelines(gender: string, halalMode: boolean): string {
+function getFashionGuidelines(gender: string, halalMode: boolean, stylePreference?: string, season?: string, occasion?: string): string {
   let guidelines = '';
 
   if (gender === 'cat') {
@@ -43,22 +42,26 @@ function getFashionGuidelines(gender: string, halalMode: boolean): string {
       guidelines = 'Ensure all outfits provide full coverage from head to toe, including a hijab that covers hair, ears, and neck (showing only the oval face shape). Avoid outfits that reveal body shape/lines. The chest should be covered fully by the hijab **THIS IS IMPORTANT**.';
     }
   } else {
-    guidelines = `Create fashion recommendations suitable for ${gender === 'male' ? 'men' : 'women'}.`;
+    guidelines = `Create fashion recommendations suitable for ${gender === 'male' ? 'men' : 'women'}`;
+    if (stylePreference) guidelines += ` in ${stylePreference} style`;
+    if (season) guidelines += ` for ${season} season`;
+    if (occasion) guidelines += ` and ${occasion} occasions`;
+    guidelines += '.';
   }
 
   return guidelines;
 }
 
 // The prompt template for fashion recommendations
-const FASHION_PROMPT = (gender: string, halalMode: boolean) => `
-You are a fashion expert specializing in ${gender === 'cat' ? 'cat fashion' : `${gender}'s fashion`}. ${getFashionGuidelines(gender, halalMode)}
+const FASHION_PROMPT = (gender: string, halalMode: boolean, stylePreference: string, season: string, occasion: string) => `
+You are a fashion expert specializing in ${gender === 'cat' ? 'cat fashion' : `${gender}'s fashion`}. ${getFashionGuidelines(gender, halalMode, stylePreference, season, occasion)}
 
 Analyze the uploaded clothing item in the image and provide detailed fashion recommendations.
 
 1. Identify the type of clothing item (e.g., ${gender === 'cat' ? 'cat sweater, harness, bowtie' : 'shirt, pants, dress, etc'})
 2. Describe its key features (color, pattern, material, style)
-3. Suggest 3 different outfit combinations that would work well with this item
-4. For each outfit, explain why it works and what occasions it would be suitable for
+3. Suggest 3 different outfit combinations that would work well with this item, focusing on ${stylePreference} style for ${season} season and ${occasion} occasions
+4. For each outfit, explain why it works and how it fits the specified style, season, and occasion
 5. Provide styling tips specific to this item
 
 Format your response as a JSON object with the following structure:
@@ -75,6 +78,8 @@ Format your response as a JSON object with the following structure:
       "name": "string",
       "pieces": ["string", "string", ...],
       "occasions": ["string", "string", ...],
+      "style": "string",
+      "seasonality": "string",
       "reasoning": "string",
       "outfitPrompt": "string" // A detailed prompt to generate an image of this specific outfit
     },
@@ -99,6 +104,9 @@ export async function POST(request: NextRequest) {
     const textPrompt = formData.get('prompt') as string | null;
     const gender = formData.get('gender') as 'male' | 'female' | 'cat' || 'female';
     const halalMode = formData.get('halalMode') === 'true';
+    const stylePreference = formData.get('stylePreference') as string || 'casual';
+    const season = formData.get('season') as string || 'spring';
+    const occasion = formData.get('occasion') as string || 'daily';
     
     console.log('Request data:', { 
       hasImage: !!imageFile, 
@@ -139,7 +147,6 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-
     // Process based on whether we have an image or text prompt
     if (imageFile) {
       console.log('Processing image file:', imageFile.name, 'Size:', imageFile.size, 'Type:', imageFile.type);
@@ -150,7 +157,7 @@ export async function POST(request: NextRequest) {
       
       // Generate content with the image and prompt
       console.log('Sending request to Gemini API with image...');
-      const result = await model.generateContent([FASHION_PROMPT(gender, halalMode), imagePart]);
+      const result = await model.generateContent([FASHION_PROMPT(gender, halalMode, stylePreference, season, occasion), imagePart]);
       console.log('Received response from Gemini API');
       
       const response = await result.response;
@@ -282,7 +289,7 @@ export async function POST(request: NextRequest) {
       const textModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       
       // Combine the fashion prompt with the user's text prompt
-      const combinedPrompt = `${FASHION_PROMPT(gender, halalMode)}\n\nUser's description: ${textPrompt}`;
+      const combinedPrompt = `${FASHION_PROMPT(gender, halalMode, stylePreference, season, occasion)}\n\nUser's description: ${textPrompt}`;
       console.log('Combined prompt created, first 200 chars:', combinedPrompt.substring(0, 200) + '...');
       
       // Generate content with the text prompt
@@ -303,9 +310,6 @@ export async function POST(request: NextRequest) {
       try {
         console.log('Attempting to parse JSON response...');
         const jsonResponse = JSON.parse(sanitizedText);
-        if (!jsonResponse?.itemType || !jsonResponse?.outfits?.length || !jsonResponse?.stylingTips?.length || !jsonResponse?.itemDescription) {
-          throw new Error('Invalid JSON structure from Gemini API');
-        }
         if (!jsonResponse?.itemType || !jsonResponse?.outfits?.length || !jsonResponse?.stylingTips?.length || !jsonResponse?.itemDescription) {
           throw new Error('Invalid JSON structure from Gemini API');
         }

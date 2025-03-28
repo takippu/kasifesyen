@@ -7,14 +7,28 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 
 export function ModeToggle() {
-  const { theme, setTheme } = useTheme()
-
+  const { theme, setTheme, systemTheme } = useTheme()
+  
+  // Track if component has mounted to prevent hydration mismatch
+  const [mounted, setMounted] = React.useState(false)
+  
+  // Mount effect - only runs once on client-side
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+  
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
   }
 
-  const isDarkMode = theme === "dark"
+  // Only calculate isDarkMode after mounting to prevent hydration mismatch
+  const isDarkMode = mounted && (theme === "dark" || (theme === "system" && systemTheme === "dark"))
 
+  // Don't render toggle until after mounting to prevent hydration mismatch
+  if (!mounted) {
+    return <Button variant="outline" size="icon" className="relative w-14 h-7 rounded-full p-0" />
+  }
+  
   return (
     <Button 
       variant="outline" 
@@ -29,33 +43,30 @@ export function ModeToggle() {
     >
       {/* Background Icons */}
       <motion.div 
-        className="absolute inset-0 flex items-center justify-between px-1"
+        className="absolute inset-0 flex items-center justify-between px-1 z-10 pointer-events-none"
         initial={false}
-        animate={{ 
-          rotate: isDarkMode ? 180 : 0,
-          scale: isDarkMode ? 0.8 : 1 
-        }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
         <Sun
-          className={`h-4 w-4 ${
-            !isDarkMode 
-              ? "text-yellow-400 drop-shadow-[0_0_4px_rgba(250,204,21,0.6)]" 
-              : "text-gray-400"
+          className={`h-3.5 w-3.5 absolute left-[6px] top-1/2 -translate-y-1/2 transition-all duration-300 ${  
+            isDarkMode 
+              ? "text-gray-400 opacity-0 z-0"
+              : "text-yellow-400 drop-shadow-[0_0_4px_rgba(250,204,21,0.6)] opacity-100 z-30"
           }`}
         />
         <Moon
-          className={`h-4 w-4 ${
+          className={`h-3.5 w-3.5 absolute right-[6px] top-1/2 -translate-y-1/2 transition-all duration-300 ${  
             isDarkMode 
-              ? "text-blue-300 drop-shadow-[0_0_4px_rgba(96,165,250,0.6)]" 
-              : "text-gray-400"
+              ? "text-blue-300 drop-shadow-[0_0_4px_rgba(96,165,250,0.6)] opacity-100 z-30"
+              : "text-gray-400 opacity-0 z-0"
           }`}
         />
       </motion.div>
 
       {/* Toggle Slider */}
       <motion.div
-        className={`absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full shadow-md transition-colors duration-300 ${
+        className={`absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full shadow-md transition-colors duration-300 z-0 ${
           isDarkMode 
             ? "bg-purple-600 hover:bg-purple-500" 
             : "bg-pink-500 hover:bg-pink-400"
