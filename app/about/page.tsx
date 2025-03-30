@@ -115,7 +115,7 @@ export default function About() {
             <TechBadge name="Tailwind CSS" delay={1.5} />
             <TechBadge name="Framer Motion" delay={1.6} />
             <TechBadge name="Google Gemini AI" delay={1.7} />
-            <TechBadge name="Vercel" delay={1.8} />
+            <TechBadge name="Render" delay={1.8} />
             <TechBadge name="Shadcn UI" delay={1.9} />
           </div>
         </motion.div>
