@@ -74,8 +74,8 @@ export function VideoDialog({ isOpen, onClose, videoId, title = 'Tutorial Video'
             <div className="relative pt-[56.25%] w-full">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-                title="YouTube video player"
+                src={`https://drive.google.com/file/d/${videoId}/preview`}
+                title="Google Drive video player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

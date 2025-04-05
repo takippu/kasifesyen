@@ -630,7 +630,7 @@ export default function Home() {
       <VideoDialog 
         isOpen={videoDialogOpen}
         onClose={() => setVideoDialogOpen(false)}
-        videoId="dQw4w9WgXcQ" // Example YouTube video ID
+        videoId="1DrAa5QKZLlYiUDCltkYMIZ44v05gp7Mx" // Google Drive file ID
         title="How to Use KasiFesyen"
       />
     </div>
